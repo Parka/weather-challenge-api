@@ -3,11 +3,20 @@ var fetch = require('node-fetch');
 var router = express.Router();
 
 const OPEN_WEATHER_KEY = process.env.OPEN_WEATHER_KEY;
-const OPEN_WEATHER_ENDPOINT = `https://api.openweathermap.org/data/2.5`;
+const OPEN_WEATHER_ENDPOINT = 'https://api.openweathermap.org/data/2.5';
+const IP_API_ENDPOINT = 'http://ip-api.com/json';
+
+const getLocationByReq = async function({connection, hostname}) {
+  const isLocal = hostname == 'localhost';
+  const response = await fetch(`${IP_API_ENDPOINT}/${isLocal? '' : connection.remoteAddress}`)
+  const location = await response.json();
+  return location;
+};
 
 /* GET location data according to ip-api */
-router.get('/location', async function(req, res, next) {
-  res.send('respond with location');
+router.get('/location', async function(req, res) {
+  const location = await getLocationByReq(req);
+  res.json({location});
 });
 
 /* GET location data according to ip-api and current weather */
