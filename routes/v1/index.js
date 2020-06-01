@@ -21,11 +21,20 @@ router.get('/location', async function(req, res) {
   res.json({location});
 });
 
-/* GET location data according to ip-api and current weather */
-router.get('/current/:city?', async function({params}, res, next) {
-  let response = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${params.city}&appid=${OPEN_WEATHER_KEY}`)
-  let weather = await response.json();
-  res.json({weather});
+/* GET location data according to ip-api (if no city) and current weather */
+router.get('/current/:city?', async function(req, res) {
+  const {city} = req.params;
+  let location = !city && await getLocationByReq(req);
+  const response = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}`)
+  const weather = await response.json();
+  location = location || {
+    "country": getName(weather.sys.country, 'en'),
+    "countryCode": weather.sys.country,
+    "city": weather.name,
+    "lat": weather.coord.lat,
+    "lon": weather.coord.lon,
+  };
+  res.json({weather, location});
 });
 
 /* GET location data according to ip-api and 5 day weather forecast */
