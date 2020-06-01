@@ -37,11 +37,20 @@ router.get('/current/:city?', async function(req, res) {
   res.json({weather, location});
 });
 
-/* GET location data according to ip-api and 5 day weather forecast */
-router.get('/forecast/:city?', async function({params}, res, next) {
-  let response = await fetch(`${OPEN_WEATHER_ENDPOINT}/forecast?q=${params.city}&appid=${OPEN_WEATHER_KEY}`)
-  let forecast = await response.json();
-  res.json({forecast});
+/* GET location data according to ip-api (if no city) and 5 day weather forecast */
+router.get('/forecast/:city?', async function(req, res) {
+  const {city} = req.params;
+  let location = !city && await getLocationByReq(req);
+  const response = await fetch(`${OPEN_WEATHER_ENDPOINT}/forecast?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}`)
+  const forecast = await response.json();
+  location = location || {
+    "country": getName(forecast.city.country, 'en'),
+    "countryCode": forecast.city.country,
+    "city": forecast.city.name,
+    "lat": forecast.city.coord.lat,
+    "lon": forecast.city.coord.lon,
+  };
+  res.json({forecast, location});
 });
 
 module.exports = router;
