@@ -1,6 +1,8 @@
-var express = require('express');
-var fetch = require('node-fetch');
-var router = express.Router();
+const express = require('express');
+const fetch = require('node-fetch');
+const router = express.Router();
+const { getName } = require('i18n-iso-countries');
+
 
 const OPEN_WEATHER_KEY = process.env.OPEN_WEATHER_KEY;
 const OPEN_WEATHER_ENDPOINT = 'https://api.openweathermap.org/data/2.5';
