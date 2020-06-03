@@ -25,7 +25,7 @@ router.get('/location', async function(req, res) {
 router.get('/current/:city?', async function(req, res) {
   const {city} = req.params;
   let location = !city && await getLocationByReq(req);
-  const response = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}`)
+  const response = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}&units=metric`)
   const weather = await response.json();
   location = location || {
     "country": getName(weather.sys.country, 'en'),
@@ -43,14 +43,14 @@ router.get('/forecast/:city?', async function(req, res) {
   let location = !city && await getLocationByReq(req);
 
   // I'm using the weather endpoint for geocoding, for simplicity
-  const weatherResponse = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}`)
+  const weatherResponse = await fetch(`${OPEN_WEATHER_ENDPOINT}/weather?q=${city || location.city}&appid=${OPEN_WEATHER_KEY}&units=metric`)
   const weather = await weatherResponse.json();
 
   // This endpoint has better formatted data than the 5 day one.
-  const response =  await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${weather.coord.lat}&lon=${weather.coord.lon}&exclude=hourly,current,minutely&appid=${OPEN_WEATHER_KEY}`);
+  const response =  await fetch(`${OPEN_WEATHER_ENDPOINT}/onecall?lat=${weather.coord.lat}&lon=${weather.coord.lon}&exclude=hourly,current,minutely&appid=${OPEN_WEATHER_KEY}&units=metric`);
   const data = await response.json();
 
-  const forecast = data.daily.slice(0,5);
+  const forecast = data.daily.slice(0,6);
 
   location = location || {
     "country": getName(weather.sys.country, 'en'),
